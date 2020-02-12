@@ -1,0 +1,17 @@
+<launch>
+
+  <!-- Point head action -->
+  <group ns="head_controller">
+    <node name="point_head_action" pkg="head_action" type="head_action_server" output="screen">
+    <remap from="state" to="/gretchen/head_controller/state" />
+    <remap from="query_state" to="/gretchen/head_controller/query_state" />
+    <remap from="command" to="/gretchen/head_controller/command" />
+      <rosparam>
+        pan_link:  pan_link
+        tilt_link: tilt_link
+        success_angle_threshold: 0.01
+      </rosparam>
+    </node>
+  </group>
+
+</launch>
