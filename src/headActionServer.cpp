@@ -339,7 +339,6 @@ public:
         active_goal_.setSucceeded();
         has_active_goal_ = false;
       }
-      past_error_ = feedback.pointing_angle_error;
     }
     catch (const tf::TransformException &ex)
     {
