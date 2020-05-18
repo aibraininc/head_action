@@ -49,6 +49,7 @@ public:
   bool has_active_goal_;
   GoalHandle active_goal_;
   double success_angle_threshold_; //one of the stop conditions in the iterative solver
+  int active_goal_cnt_;
 
   boost::scoped_ptr<KDL::ChainFkSolverPos> pose_solver_;
   boost::scoped_ptr<KDL::ChainJntToJacSolver> jac_solver_;
@@ -65,7 +66,7 @@ public:
   	action_server_(nh_, "absolute_point_head_action",
                        boost::bind(&HeadAction::goalCB, this, _1),
                        boost::bind(&HeadAction::cancelCB, this, _1), false),
-    has_active_goal_(false)
+    has_active_goal_(false), active_goal_cnt_(0)
   {
     if (tree_.getNrOfJoints() == 0)
     {
@@ -332,9 +333,17 @@ public:
       ROS_INFO_STREAM("current error is: " << feedback.pointing_angle_error << " radians");
 
       active_goal_.publishFeedback(feedback);
+      active_goal_cnt_++;
+      if(active_goal_cnt_> 20){
+        active_goal_cnt_ = 0;
+        ROS_INFO_STREAM("goal succeeded with error: " << feedback.pointing_angle_error << " radians");
+        active_goal_.setSucceeded();
+        has_active_goal_ = false;
+      }
 
-      if (feedback.pointing_angle_error <= 0.01)
-      {        
+      if (feedback.pointing_angle_error <= 0.1)
+      {
+        active_goal_cnt_ = 0;        
         ROS_INFO_STREAM("goal succeeded with error: " << feedback.pointing_angle_error << " radians");
         active_goal_.setSucceeded();
         has_active_goal_ = false;
